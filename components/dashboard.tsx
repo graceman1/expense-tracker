@@ -148,15 +148,12 @@ export function Dashboard() {
     setError(null);
     setIsSubmitting(true);
 
-    const response = await fetch("/api/transactions", {
+    const response = await fetch(`/api/transactions/${editingTransaction.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        id: editingTransaction.id,
-        ...readTransactionForm(event.currentTarget),
-      }),
+      body: JSON.stringify(readTransactionForm(event.currentTarget)),
     });
 
     if (!response.ok) {
@@ -174,7 +171,7 @@ export function Dashboard() {
     setError(null);
     setIsSubmitting(true);
 
-    const response = await fetch(`/api/transactions?id=${encodeURIComponent(id)}`, {
+    const response = await fetch(`/api/transactions/${id}`, {
       method: "DELETE",
     });
 

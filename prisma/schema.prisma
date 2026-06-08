@@ -13,30 +13,32 @@ datasource db {
 }
 
 model Account {
-  id           String        @id @default(cuid())
-  name         String
-  institution  String?
-  type         String?
-  balance      Float?
-  transactions Transaction[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  plaidAccountId String?       @unique
+  name           String
+  institution    String?
+  type           String?
+  balance        Float?
+  transactions   Transaction[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 model Transaction {
-  id          String    @id @default(cuid())
-  accountId   String
-  categoryId  String?
-  name        String
-  amount      Float
-  date        DateTime
-  pending     Boolean   @default(false)
+  id                 String    @id @default(cuid())
+  plaidTransactionId String?   @unique
+  accountId          String
+  categoryId         String?
+  name               String
+  amount             Float
+  date               DateTime
+  pending            Boolean   @default(false)
 
-  account     Account   @relation(fields: [accountId], references: [id])
-  category    Category? @relation(fields: [categoryId], references: [id])
+  account            Account   @relation(fields: [accountId], references: [id])
+  category           Category? @relation(fields: [categoryId], references: [id])
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
 model Category {
@@ -45,4 +47,13 @@ model Category {
   color        String?
   transactions Transaction[]
   createdAt    DateTime      @default(now())
+}
+
+model PlaidItem {
+  id          String   @id @default(cuid())
+  itemId      String   @unique
+  accessToken String
+  cursor      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

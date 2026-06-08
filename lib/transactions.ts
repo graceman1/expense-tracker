@@ -56,6 +56,18 @@ export async function createTransaction(input: CreateTransactionInput) {
   });
 }
 
+export async function getTransactions() {
+  return prisma.transaction.findMany({
+    include: {
+      account: true,
+      category: true,
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
+}
+
 export async function updateTransaction(
   id: string,
   input: UpdateTransactionInput,
