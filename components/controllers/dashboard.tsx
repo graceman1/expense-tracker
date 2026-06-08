@@ -8,7 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { DashboardView } from "@/components/dashboard-view";
+import { DashboardView } from "@/components/views/dashboard-view";
 import type { CategoryTotals, DashboardData, Transaction } from "@/types/dashboard";
 
 export function Dashboard() {
@@ -86,7 +86,8 @@ export function Dashboard() {
         .reduce<CategoryTotals>(
           (totals, transaction) => {
             const name = transaction.category?.name ?? "Uncategorized";
-            const color = transaction.category?.color ?? "#52525b";
+            const color =
+              transaction.category?.color ?? "var(--category-color-default)";
 
             totals[name] = {
               color,

@@ -1,71 +1,9 @@
-import { Products, type Transaction as PlaidTransaction } from "plaid";
 import { plaidClient } from "@/lib/plaid";
+import { getProcessedPlaidCategoryId } from "@/lib/plaid-categories";
 import { prisma } from "@/lib/prisma";
+import { Products } from "plaid";
 
 const sandboxInstitutionId = "ins_109508";
-const categoryColors = [
-  "#2563eb",
-  "#dc2626",
-  "#16a34a",
-  "#9333ea",
-  "#ea580c",
-  "#0891b2",
-  "#be123c",
-  "#4f46e5",
-];
-
-function formatPlaidCategoryName(category: string) {
-  return category
-    .toLowerCase()
-    .split("_")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
-function getPlaidCategoryName(transaction: PlaidTransaction) {
-  const category =
-    transaction.personal_finance_category?.primary ?? transaction.category?.[0];
-
-  if (!category) {
-    return null;
-  }
-
-  return formatPlaidCategoryName(category);
-}
-
-function getCategoryColor(name: string) {
-  const colorIndex = name
-    .split("")
-    .reduce((total, character) => total + character.charCodeAt(0), 0);
-
-  return categoryColors[colorIndex % categoryColors.length];
-}
-
-async function findOrCreatePlaidCategory(transaction: PlaidTransaction) {
-  const name = getPlaidCategoryName(transaction);
-
-  if (!name) {
-    return null;
-  }
-
-  const existingCategory = await prisma.category.findFirst({
-    where: {
-      name,
-    },
-  });
-
-  if (existingCategory) {
-    return existingCategory;
-  }
-
-  return prisma.category.create({
-    data: {
-      name,
-      color: getCategoryColor(name),
-    },
-  });
-}
 
 async function createPlaidSandboxItem() {
   const publicTokenResponse = await plaidClient.sandboxPublicTokenCreate({
@@ -112,9 +50,7 @@ export async function syncPlaidSandboxItem() {
     access_token: accessToken,
   });
   const institutionName =
-    itemResponse.data.item.institution_name ??
-    itemResponse.data.item.institution_id ??
-    sandboxInstitutionId;
+    itemResponse.data.item.institution_name ?? sandboxInstitutionId;
   let cursor = plaidItem.cursor ?? undefined;
   let addedCount = 0;
   let modifiedCount = 0;
@@ -165,14 +101,7 @@ export async function syncPlaidSandboxItem() {
         continue;
       }
 
-      const plaidCategory = await findOrCreatePlaidCategory(transaction);
-      const existingTransaction = await prisma.transaction.findUnique({
-        where: {
-          plaidTransactionId: transaction.transaction_id,
-        },
-      });
-      const categoryId =
-        existingTransaction?.categoryId ?? plaidCategory?.id ?? null;
+      const categoryId = await getProcessedPlaidCategoryId(transaction);
 
       await prisma.transaction.upsert({
         where: {

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent } from "react";
+import { formatCurrency, formatDate } from "@/lib/format";
 import type {
   Account,
   Category,
@@ -26,11 +27,6 @@ type DashboardViewProps = {
   spending: number;
   totalBalance: number;
 };
-
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
 
 export function DashboardView({
   accounts,
@@ -77,19 +73,19 @@ export function DashboardView({
           <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-zinc-500">Total balance</p>
             <p className="mt-3 text-3xl font-semibold text-zinc-950">
-              {currency.format(totalBalance)}
+              {formatCurrency(totalBalance)}
             </p>
           </div>
           <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-zinc-500">Spending</p>
             <p className="mt-3 text-3xl font-semibold text-rose-700">
-              {currency.format(spending)}
+              {formatCurrency(spending)}
             </p>
           </div>
           <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
             <p className="text-sm font-medium text-zinc-500">Income</p>
             <p className="mt-3 text-3xl font-semibold text-emerald-700">
-              {currency.format(income)}
+              {formatCurrency(income)}
             </p>
           </div>
         </section>
@@ -130,15 +126,7 @@ export function DashboardView({
                         {transaction.category?.name ?? "Uncategorized"}
                       </td>
                       <td className="px-5 py-4 text-zinc-600">
-                        {new Date(transaction.date).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            timeZone: "UTC",
-                          },
-                        )}
+                        {formatDate(transaction.date)}
                       </td>
                       <td
                         className={`px-5 py-4 text-right font-semibold ${
@@ -147,7 +135,7 @@ export function DashboardView({
                             : "text-zinc-950"
                         }`}
                       >
-                        {currency.format(Math.abs(transaction.amount))}
+                        {formatCurrency(Math.abs(transaction.amount))}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex justify-end gap-2">
@@ -194,7 +182,7 @@ export function DashboardView({
                       </span>
                     </div>
                     <span className="font-semibold text-zinc-950">
-                      {currency.format(category.total)}
+                      {formatCurrency(category.total)}
                     </span>
                   </div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100">

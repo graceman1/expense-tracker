@@ -28,3 +28,20 @@ export type DashboardData = {
 };
 
 export type CategoryTotals = Record<string, { color: string; total: number }>;
+
+export type BudgetCategorySummary = {
+  color: string;
+  name: string;
+  percent: number;
+  total: number;
+};
+
+export type TransactionListItem = {
+  accountName: string;
+  amount: number;
+  categoryName: string;
+  date: string;
+  id: string;
+  isIncome: boolean;
+  name: string;
+};
